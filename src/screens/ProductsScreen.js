@@ -71,34 +71,59 @@ export default function ProductsScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
-      <FlatList
-        data={productos}
-        keyExtractor={(item, index) => `prod-${String(item.id_producto ?? item.id ?? item._id ?? index)}`}
-        renderItem={({ item }) => {
-          const id = item.id_producto ?? item.id ?? item._id;
-          return (
-            <View style={styles.item}>
-              <View style={{ width: 64, marginRight: 12 }}>
-                {item.url_imagen ? (
-                  <Image source={{ uri: fullUrl(item.url_imagen) }} style={styles.thumb} />
-                ) : (
-                  <View style={styles.noThumb}><Text style={{ color: colors.grey[500] }}>No Img</Text></View>
-                )}
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.itemTitle}>{item.nombre}</Text>
-                <Text style={styles.itemDesc}>${item.precio_unitario}</Text>
-              </View>
-              <TouchableOpacity onPress={() => navigation.navigate('ProductForm', { id })} style={[styles.smallBtn, styles.btnSecondary]}>
-                <Text style={[styles.smallBtnText, { color: colors.secondary.contrastText }]}>Editar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => remove(id)} style={[styles.smallBtn, styles.btnDanger]}>
-                <Text style={[styles.smallBtnText, { color: '#fff' }]}>Eliminar</Text>
-              </TouchableOpacity>
+
+<FlatList
+  data={productos}
+  keyExtractor={(item, index) => `prod-${String(item.id_producto ?? index)}`}
+  renderItem={({ item }) => {
+    const id = item.id_producto ?? item.id ?? item._id;
+
+    // ✅ Convertir URL de Google Drive
+    let uri = item.url_imagen || '';
+    if (uri) {
+      if (/drive\.google\.com\/file\/d\//.test(uri)) {
+        const match = uri.match(/\/file\/d\/([^/]+)/);
+        const fileId = match && match[1];
+        if (fileId) {
+          uri = `https://drive.google.com/uc?export=view&id=${fileId}`;
+        }
+      } else {
+        uri = fullUrl(uri); // Para imágenes normales desde tu backend
+      }
+    }
+
+    return (
+      <View style={styles.item}>
+        <View style={{ width: 64, marginRight: 12 }}>
+          {uri ? (
+            <Image source={{ uri }} style={styles.thumb} />
+          ) : (
+            <View style={styles.noThumb}>
+              <Text style={{ color: colors.grey[500] }}>No Img</Text>
             </View>
-          );
-        }}
-      />
+          )}
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.itemTitle}>{item.nombre}</Text>
+          <Text style={styles.itemDesc}>${item.precio_unitario}</Text>
+        </View>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('ProductForm', { id })}
+          style={[styles.smallBtn, styles.btnSecondary]}
+        >
+          <Text style={[styles.smallBtnText, { color: colors.secondary.contrastText }]}>Editar</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => remove(id)}
+          style={[styles.smallBtn, styles.btnDanger]}
+        >
+          <Text style={[styles.smallBtnText, { color: '#fff' }]}>Eliminar</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }}
+/>
+
     </View>
   );
 }
