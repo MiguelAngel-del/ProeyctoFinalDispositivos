@@ -1,3 +1,4 @@
+
 import React, { useContext } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -13,15 +14,39 @@ import CategoryFormScreen from '../screens/CategoryFormScreen';
 import UsersScreen from '../screens/UsersScreen';
 import UserFormScreen from '../screens/UserFormScreen';
 import LogsScreen from '../screens/LogsScreen';
-import { Text, TouchableOpacity } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../theme';
+
+// ⬇️ USA UNO: Expo
+import { Ionicons } from '@expo/vector-icons';
+// ⬇️ O React Native CLI
+// import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function MainTabs() {
   return (
-    <Tab.Navigator screenOptions={{ headerShown: false }}>
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarActiveTintColor: colors.primary.main,
+        tabBarInactiveTintColor: '#777',
+        tabBarStyle: { height: 60 },
+        tabBarLabelStyle: { fontSize: 12, marginBottom: 6 },
+        tabBarIcon: ({ color, focused }) => {
+          const icons = {
+            Tienda: focused ? 'cart' : 'cart-outline',
+            Productos: focused ? 'cube' : 'cube-outline',
+            Categorias: focused ? 'list' : 'list-outline',
+            Usuarios: focused ? 'people' : 'people-outline',
+            Logs: focused ? 'time' : 'time-outline',
+          };
+          const name = icons[route.name] || 'ellipse-outline';
+          return <Ionicons name={name} size={22} color={color} />;
+        },
+      })}
+    >
       <Tab.Screen name="Tienda" component={StoreScreen} />
       <Tab.Screen name="Productos" component={ProductsStack} />
       <Tab.Screen name="Categorias" component={CategoriesStack} />
@@ -31,7 +56,6 @@ function MainTabs() {
   );
 }
 
-// Products stack (list + form)
 const ProductsStackNav = createStackNavigator();
 function ProductsStack() {
   return (
@@ -42,7 +66,6 @@ function ProductsStack() {
   );
 }
 
-// Categories stack (list + form)
 const CategoriesStackNav = createStackNavigator();
 function CategoriesStack() {
   return (
@@ -53,7 +76,6 @@ function CategoriesStack() {
   );
 }
 
-// Users stack (list + form)
 const UsersStackNav = createStackNavigator();
 function UsersStack() {
   return (
@@ -69,7 +91,6 @@ export default function AppNavigator() {
 
   if (loading) return <Text>Cargando...</Text>;
 
-  // Auth stack (Login + Register)
   const AuthStackNav = createStackNavigator();
   function AuthStack() {
     return (
@@ -92,8 +113,17 @@ export default function AppNavigator() {
               title: 'E-Commerce',
               headerStyle: { backgroundColor: colors.primary.main },
               headerTintColor: colors.primary.contrastText,
+              headerLeft: () => (
+                <View style={{ marginLeft: 12 }}>
+                  <Ionicons name="storefront-outline" size={22} color={colors.primary.contrastText} />
+                </View>
+              ),
               headerRight: () => (
-                <TouchableOpacity onPress={() => logout()} style={{ marginRight: 12 }}>
+                <TouchableOpacity
+                  onPress={() => logout()}
+                  style={{ marginRight: 12, flexDirection: 'row', alignItems: 'center', gap: 8 }}
+                >
+                  <Ionicons name="log-out-outline" size={20} color={colors.primary.contrastText} />
                   <Text style={{ color: colors.primary.contrastText, fontWeight: '600' }}>Salir</Text>
                 </TouchableOpacity>
               ),
